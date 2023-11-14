@@ -20,7 +20,7 @@ where:
 - $S$ is the actual outcome of the match (1 for a win, 0.5 for a draw (which we ignore here since all IPL games have a result), and 0 for a loss).
 - $E$ is the expected outcome of the match, which is a logistic function of the initial ratings of the two teams:
 
-$$ E = \frac{1}{1 + 10^{(R*{opponent} - R*{team})/400}}, $$
+$$ E = \frac{1}{1 + 10^{(R_{opponent} - R_{team})/400}}, $$
 
 where $R_{opponent}$ is the rating of the opponent and $R_{team}$ is the rating of the team.
 
@@ -34,23 +34,23 @@ In the realm of cricket, the influence of the playing environment is undeniable.
 
 To reflect the inherent benefit that comes with familiarity with local conditions, we introduce a home advantage factor ($H$) into our Elo system. For home teams, this factor positively influences their expected outcome. The intermediate Elo rating for the home team is calculated as:
 
-$$ \cap{R}_{home} = R_{home} + H. $$
+$$\hat{R}_{home} = R_{home} + H.$$
 
 #### Toss Decisions
 
 To reflect the advantage of winning the toss and choosing the preferred option, we introduce a toss decision factor ($T$). If a team wins the toss and chooses the preferred option (batting or bowling), their intermediate Elo rating is calculated as:
 
-$$ \cap{R}_{toss} = R_{toss} + T. $$
+$$\hat{R}_{toss} = R_{toss} + T. $$
 
 As an example, let's consider a match between the Mumbai Indians (MI) and the Chennai Super Kings (CSK). The Mumbai Indians are playing at home and have won the toss and chosen to bat. The intermediate Elo ratings for the two teams are calculated as:
 
-$$ \cap{R}_{MI} = R_{MI} + H + T $$
-$$ \cap{R}_{CSK} = R_{CSK} $$
+$$ \hat{R}_{MI} = R_{MI} + H + T $$
+$$ \hat{R}_{CSK} = R_{CSK} $$
 
 In another scenario, if the Mumbai Indians are playing at home but have lost the toss and are asked to bat, the intermediate Elo ratings for the two teams are calculated as:
 
-$$ \cap{R}_{MI} = R_{MI} + H $$
-$$ \cap{R}_{CSK} = R_{CSK} + T $$
+$$ \hat{R}_{MI} = R_{MI} + H $$
+$$ \hat{R}_{CSK} = R_{CSK} + T $$
 
 The expected outcome of the match is then calculated using the intermediate Elo ratings of the two teams. This refined approach captures cricket intricacies, offering a clearer understanding of team strengths amid home advantages and toss outcomes.
 
@@ -128,3 +128,5 @@ This meticulous parameter tuning enhances the accuracy of our Elo rating system,
 Now that the foundation is laid, and our Elo rating system is equipped with optimal parameters, let's delve into the captivating realm of IPL cricket. We'll explore visualizations and glean insights that showcase the nuanced performance dynamics of teams, considering home advantage, toss decisions, and historical data.
 
 #### Elo Trajectories Over Seasons
+
+To be continued...
