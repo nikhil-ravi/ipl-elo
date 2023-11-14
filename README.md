@@ -14,15 +14,15 @@ $$R_{new} = R_{old} + K \times (S - E)$$
 
 where:
 
-- $$R_{new}$$ is the new rating of the team.
-- $$R_{old}$$ is the old rating of the team.
-- $$K$$ is a constant that determines how much the rating should change after a match (higher $$K$$ values lead to more significant changes).
-- $$S$$ is the actual outcome of the match (1 for a win, 0.5 for a draw (which we ignore here since all IPL games have a result), and 0 for a loss).
-- $$E$$ is the expected outcome of the match, which is a logistic function of the initial ratings of the two teams:
+- $R_{new}$ is the new rating of the team.
+- $R_{old}$ is the old rating of the team.
+- $K$ is a constant that determines how much the rating should change after a match (higher $K$ values lead to more significant changes).
+- $S$ is the actual outcome of the match (1 for a win, 0.5 for a draw (which we ignore here since all IPL games have a result), and 0 for a loss).
+- $E$ is the expected outcome of the match, which is a logistic function of the initial ratings of the two teams:
 
 $$ E = \frac{1}{1 + 10^{(R*{opponent} - R*{team})/400}}, $$
 
-where $$R_{opponent}$$ is the rating of the opponent and $$R_{team}$$ is the rating of the team.
+where $R_{opponent}$ is the rating of the opponent and $R_{team}$ is the rating of the team.
 
 This intricate dance of numbers ensures that the ratings evolve with every match played, capturing the ebb and flow of team performances over time. As we adapt this system to the world of IPL, these mathematical underpinnings become the bedrock of our pursuit to create a ranking system that reflects the ever-changing dynamics of cricketing contests.
 
@@ -32,13 +32,13 @@ In the realm of cricket, the influence of the playing environment is undeniable.
 
 #### Home Advantage
 
-To reflect the inherent benefit that comes with familiarity with local conditions, we introduce a home advantage factor ($$H$$) into our Elo system. For home teams, this factor positively influences their expected outcome. The intermediate Elo rating for the home team is calculated as:
+To reflect the inherent benefit that comes with familiarity with local conditions, we introduce a home advantage factor ($H$) into our Elo system. For home teams, this factor positively influences their expected outcome. The intermediate Elo rating for the home team is calculated as:
 
 $$ \cap{R}_{home} = R_{home} + H. $$
 
 #### Toss Decisions
 
-To reflect the advantage of winning the toss and choosing the preferred option, we introduce a toss decision factor ($$T$$). If a team wins the toss and chooses the preferred option (batting or bowling), their intermediate Elo rating is calculated as:
+To reflect the advantage of winning the toss and choosing the preferred option, we introduce a toss decision factor ($T$). If a team wins the toss and chooses the preferred option (batting or bowling), their intermediate Elo rating is calculated as:
 
 $$ \cap{R}_{toss} = R_{toss} + T. $$
 
@@ -72,9 +72,9 @@ To ensure the dataset's reliability, a minor but crucial data cleaning step was 
 - `Rising Pune Supergiants` -> `Rising Pune Supergiant`,
 - `Kings XI Punjab` -> `Punjab Kings`,
 
-### Parameter Tuning: Optimal $$K$$, $$H$$, and $$T$$ Values
+### Parameter Tuning: Optimal $K$, $H$, and $T$ Values
 
-In the pursuit of refining our Elo rating system for IPL teams, the choice of parameters—$$K$$ (weight factor), $$H$$ (home advantage), and $$T$$ (toss decision)—plays a pivotal role. Here, we delve into the methodology employed to determine the optimal values for these parameters, ensuring the system's accuracy and effectiveness.
+In the pursuit of refining our Elo rating system for IPL teams, the choice of parameters—$K$ (weight factor), $H$ (home advantage), and $T$ (toss decision)—plays a pivotal role. Here, we delve into the methodology employed to determine the optimal values for these parameters, ensuring the system's accuracy and effectiveness.
 
 #### Initial Elo Ratings
 
@@ -82,7 +82,7 @@ The Elo system begins with an essential step: setting the initial ratings of all
 
 #### Bayesian Optimization
 
-To fine-tune the $$K$$, $$H$$, and $$T$$ parameters, we employed Bayesian optimization — a sophisticated technique that efficiently explores parameter spaces to minimize mean square error (MSE) between expected and actual match outcomes. The Bayesian optimization algorithm is a sequential design strategy that uses prior knowledge to select the next set of parameters to evaluate. See [this article](https://arxiv.org/abs/1807.02811) for a detailed tutorial of Bayesian optimization. This approach is particularly useful when the objective function is expensive to evaluate. Even though our objective function is relatively inexpensive to evaluate, Bayesian optimization is still a good choice because it is more efficient than grid search and random search. We used the [`BayesianOptimization`](https://github.com/bayesian-optimization/BayesianOptimization) library to perform Bayesian optimization.
+To fine-tune the $K$, $H$, and $T$ parameters, we employed Bayesian optimization — a sophisticated technique that efficiently explores parameter spaces to minimize mean square error (MSE) between expected and actual match outcomes. The Bayesian optimization algorithm is a sequential design strategy that uses prior knowledge to select the next set of parameters to evaluate. See [this article](https://arxiv.org/abs/1807.02811) for a detailed tutorial of Bayesian optimization. This approach is particularly useful when the objective function is expensive to evaluate. Even though our objective function is relatively inexpensive to evaluate, Bayesian optimization is still a good choice because it is more efficient than grid search and random search. We used the [`BayesianOptimization`](https://github.com/bayesian-optimization/BayesianOptimization) library to perform Bayesian optimization.
 
 ##### Objective Function
 
@@ -92,13 +92,13 @@ $$ MSE(K, H, T) = \frac{1}{N} \sum\_{i=1}^{N}\sum*{j=1}^{2} (S*{i,j} - E\_{i,j}(
 
 where:
 
-- $$N$$ is the number of matches.
-- $$S_{i,j}$$ is the actual outcome of the $$i$$th match for the $$j$$th team. It is 1 if team $$j$$ won the match and 0 if team $$j$$ lost the match.
-- $$E_{i,j}$$ is the expected outcome of the $$i$$th match for the $$j$$th team. It is calculated using the Elo formula.
+- $N$ is the number of matches.
+- $S_{i,j}$ is the actual outcome of the $i$th match for the $j$th team. It is 1 if team $j$ won the match and 0 if team $j$ lost the match.
+- $E_{i,j}$ is the expected outcome of the $i$th match for the $j$th team. It is calculated using the Elo formula.
 
 ##### Parameter Space
 
-The parameter space for Bayesian optimization is the set of all possible values for the parameters $$K$$, $$H$$, and $$T$$. We restricted all three parameters to be between 0 and 100.
+The parameter space for Bayesian optimization is the set of all possible values for the parameters $K$, $H$, and $T$. We restricted all three parameters to be between 0 and 100.
 
 ##### Bayesian Optimization Results
 
@@ -119,7 +119,7 @@ The algorithm ran for 210 iterations, with the first 10 for random exploration a
 | 77        | 0.4975 | 6.838 | 5.58  | 11.28 |
 | 123       | 0.4975 | 6.85  | 5.427 | 11.21 |
 
-The decreasing MSE across iterations indicates convergence to a minimum. The final MSE of 0.4975 attests to the effectiveness of the Bayesian optimization. Optimal values for $$K$$, $$H$$, and $$T$$ are found to be $$6.85$$, $$5.427$$, and $$11.21$$, respectively.
+The decreasing MSE across iterations indicates convergence to a minimum. The final MSE of 0.4975 attests to the effectiveness of the Bayesian optimization. Optimal values for $K$, $H$, and $T$ are found to be $6.85$, $5.427$, and $11.21$, respectively.
 
 This meticulous parameter tuning enhances the accuracy of our Elo rating system, aligning it more closely with the dynamics of IPL cricket.
 
