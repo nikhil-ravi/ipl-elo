@@ -1,0 +1,130 @@
+## Elevating IPL Team Rankings: A Dive into Elo Rating System
+
+In the dynamic landscape of IPL cricket, accurate team rankings are paramount. This article takes a focused look at how Elo, a proven method from the world of chess, has been leveraged to rank IPL teams. Let's explore the simplicity and effectiveness of this approach and uncover how it reshapes our understanding of team performance in one of the most exhilarating cricket leagues globally.
+
+### A Primer on the Elo Rating System
+
+At the heart of our endeavor to redefine IPL team rankings lies the Elo rating system, a mathematical framework originally designed for assessing the relative skill levels of chess players. Devised by Arpad Elo in the mid-20th century, this system provides a robust and elegant solution to quantify the performance of competitors in a head-to-head setup.
+
+The fundamental concept behind Elo ratings rests on the notion of expected outcomes. For any given match, each team possesses an initial rating, typically set at 1500. The difference in ratings between two teams determines the expected probability of each team winning. The Elo formula, in its basic form, is a mathematical dance between these initial ratings and the actual outcome of the match.
+
+The formula for updating a team's rating after a match is:
+
+$$R_{new} = R_{old} + K \times (S - E)$$
+
+where:
+
+- $$R_{new}$$ is the new rating of the team.
+- $$R_{old}$$ is the old rating of the team.
+- $$K$$ is a constant that determines how much the rating should change after a match (higher $$K$$ values lead to more significant changes).
+- $$S$$ is the actual outcome of the match (1 for a win, 0.5 for a draw (which we ignore here since all IPL games have a result), and 0 for a loss).
+- $$E$$ is the expected outcome of the match, which is a logistic function of the initial ratings of the two teams:
+
+$$ E = \frac{1}{1 + 10^{(R*{opponent} - R*{team})/400}}, $$
+
+where $$R_{opponent}$$ is the rating of the opponent and $$R_{team}$$ is the rating of the team.
+
+This intricate dance of numbers ensures that the ratings evolve with every match played, capturing the ebb and flow of team performances over time. As we adapt this system to the world of IPL, these mathematical underpinnings become the bedrock of our pursuit to create a ranking system that reflects the ever-changing dynamics of cricketing contests.
+
+### Adapting Elo to the Cricketing Arena: Accounting for Home Advantage and Toss Decisions
+
+In the realm of cricket, the influence of the playing environment is undeniable. Much like football teams relish the support of a home crowd, cricket teams, too, often exhibit superior performance on their home turf. Cricket pitches vary significantly across stadiums, and teams tend to be more attuned to the conditions of their home grounds.Moreover, the strategic choice that comes with winning the toss—whether to bat or bowl—adds another layer of complexity to the game, requiring a nuanced approach when assessing team strengths.
+
+#### Home Advantage
+
+To reflect the inherent benefit that comes with familiarity with local conditions, we introduce a home advantage factor ($$H$$) into our Elo system. For home teams, this factor positively influences their expected outcome. The intermediate Elo rating for the home team is calculated as:
+
+$$ \cap{R}_{home} = R_{home} + H. $$
+
+#### Toss Decisions
+
+To reflect the advantage of winning the toss and choosing the preferred option, we introduce a toss decision factor ($$T$$). If a team wins the toss and chooses the preferred option (batting or bowling), their intermediate Elo rating is calculated as:
+
+$$ \cap{R}_{toss} = R_{toss} + T. $$
+
+As an example, let's consider a match between the Mumbai Indians (MI) and the Chennai Super Kings (CSK). The Mumbai Indians are playing at home and have won the toss and chosen to bat. The intermediate Elo ratings for the two teams are calculated as:
+
+$$ \cap{R}_{MI} = R_{MI} + H + T $$
+$$ \cap{R}_{CSK} = R_{CSK} $$
+
+In another scenario, if the Mumbai Indians are playing at home but have lost the toss and are asked to bat, the intermediate Elo ratings for the two teams are calculated as:
+
+$$ \cap{R}_{MI} = R_{MI} + H $$
+$$ \cap{R}_{CSK} = R_{CSK} + T $$
+
+The expected outcome of the match is then calculated using the intermediate Elo ratings of the two teams. This refined approach captures cricket intricacies, offering a clearer understanding of team strengths amid home advantages and toss outcomes.
+
+### Dataset
+
+In this project, we leverage the IPL matches dataset, conveniently accessible on [Kaggle](https://www.kaggle.com/datasets/vora1011/ipl-2008-to-2021-all-match-dataset?rvi=1). Spanning from the 2008 season to the 2022 season, this extensive dataset is a treasure trove of information crucial to our Elo rating system implementation.
+
+The dataset contains information about 950 IPL games and the following columns of the dataset are of immediate interest to us:
+
+- `Team1`: Identifies the team playing on its home ground, influencing the incorporation of the home advantage factor.
+- `Team2`: Identifies the opposing team, a key element in Elo calculations to gauge relative strengths.
+- `TossWinner`: Highlights the team winning the toss, a pivotal factor in adjusting Elo ratings to reflect strategic decisions.
+- `WinningTeam`: Specifies the outcome of each match, providing the essential ground truth for Elo rating updates.
+
+To ensure the dataset's reliability, a minor but crucial data cleaning step was executed. Some teams underwent name changes over the years, leading to potential inconsistencies. The affected teams and their corrections include:
+
+- `Deccan Chargers` -> `Sunrisers Hyderabad`,
+- `Delhi Daredevils` -> `Delhi Capitals`,
+- `Rising Pune Supergiants` -> `Rising Pune Supergiant`,
+- `Kings XI Punjab` -> `Punjab Kings`,
+
+### Parameter Tuning: Optimal $$K$$, $$H$$, and $$T$$ Values
+
+In the pursuit of refining our Elo rating system for IPL teams, the choice of parameters—$$K$$ (weight factor), $$H$$ (home advantage), and $$T$$ (toss decision)—plays a pivotal role. Here, we delve into the methodology employed to determine the optimal values for these parameters, ensuring the system's accuracy and effectiveness.
+
+#### Initial Elo Ratings
+
+The Elo system begins with an essential step: setting the initial ratings of all teams to a standard value. In our case, this default value is 1500, a widely used benchmark in sports like American Football.
+
+#### Bayesian Optimization
+
+To fine-tune the $$K$$, $$H$$, and $$T$$ parameters, we employed Bayesian optimization — a sophisticated technique that efficiently explores parameter spaces to minimize mean square error (MSE) between expected and actual match outcomes. The Bayesian optimization algorithm is a sequential design strategy that uses prior knowledge to select the next set of parameters to evaluate. See [this article](https://arxiv.org/abs/1807.02811) for a detailed tutorial of Bayesian optimization. This approach is particularly useful when the objective function is expensive to evaluate. Even though our objective function is relatively inexpensive to evaluate, Bayesian optimization is still a good choice because it is more efficient than grid search and random search. We used the [`BayesianOptimization`](https://github.com/bayesian-optimization/BayesianOptimization) library to perform Bayesian optimization.
+
+##### Objective Function
+
+The objective function for Bayesian optimization is the MSE between the expected and actual match outcomes. The expected outcome of a match is calculated using the Elo formula. The actual outcome of a match is 1 if the home team wins, 0 if the away team wins, and 0.5 if the match is a draw (which we ignore here since all IPL games have a result). The objective function is defined as:
+
+$$ MSE(K, H, T) = \frac{1}{N} \sum\_{i=1}^{N}\sum*{j=1}^{2} (S*{i,j} - E\_{i,j}(K, H, T))^2, $$
+
+where:
+
+- $$N$$ is the number of matches.
+- $$S_{i,j}$$ is the actual outcome of the $$i$$th match for the $$j$$th team. It is 1 if team $$j$$ won the match and 0 if team $$j$$ lost the match.
+- $$E_{i,j}$$ is the expected outcome of the $$i$$th match for the $$j$$th team. It is calculated using the Elo formula.
+
+##### Parameter Space
+
+The parameter space for Bayesian optimization is the set of all possible values for the parameters $$K$$, $$H$$, and $$T$$. We restricted all three parameters to be between 0 and 100.
+
+##### Bayesian Optimization Results
+
+The algorithm ran for 210 iterations, with the first 10 for random exploration and the remaining 200 for Bayesian optimization. The table below highlights iterations where an improvement was found:
+
+| Iteration | MSE | K     | H     | T     |
+| :-------- | :----- | :---- | :---- | :---- |
+| 11        | 0.5    | 0.0   | 0.0   | 0.0   |
+| 15        | 0.4999 | 0.0   | 0.0   | 22.11 |
+| 18        | 0.4979 | 8.811 | 12.0  | 8.041 |
+| 21        | 0.4976 | 7.429 | 5.433 | 9.889 |
+| 26        | 0.4976 | 7.121 | 4.344 | 9.568 |
+| 27        | 0.4975 | 6.979 | 4.891 | 11.71 |
+| 36        | 0.4975 | 6.877 | 4.812 | 11.65 |
+| 39        | 0.4975 | 6.952 | 5.794 | 11.47 |
+| 50        | 0.4975 | 6.871 | 5.486 | 11.44 |
+| 60        | 0.4975 | 6.897 | 5.444 | 11.03 |
+| 77        | 0.4975 | 6.838 | 5.58  | 11.28 |
+| 123       | 0.4975 | 6.85  | 5.427 | 11.21 |
+
+The decreasing MSE across iterations indicates convergence to a minimum. The final MSE of 0.4975 attests to the effectiveness of the Bayesian optimization. Optimal values for $$K$$, $$H$$, and $$T$$ are found to be $$6.85$$, $$5.427$$, and $$11.21$$, respectively.
+
+This meticulous parameter tuning enhances the accuracy of our Elo rating system, aligning it more closely with the dynamics of IPL cricket.
+
+### Unveiling Elo Dynamics in IPL: Visualizations and Insights
+
+Now that the foundation is laid, and our Elo rating system is equipped with optimal parameters, let's delve into the captivating realm of IPL cricket. We'll explore visualizations and glean insights that showcase the nuanced performance dynamics of teams, considering home advantage, toss decisions, and historical data.
+
+#### Elo Trajectories Over Seasons
